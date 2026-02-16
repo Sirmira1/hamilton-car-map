@@ -1,9 +1,10 @@
 const carMarkers = [
-    { name: "Ridge Road Overlook", position: { lat: 43.211605113937644, lng: -79.74081953896356}, category: "scenic-route", description: "Beautiful drive with lots of spots to park and take pictures of your car with a look on Hamilton and Lake Ontario."}
+    { name: "Ridge Road Overlook", position: { lat: 43.211605113937644, lng: -79.74081953896356 }, category: "scenic-route", description: "Beautiful drive with lots of spots to park and take pictures of your car with a look on Hamilton and Lake Ontario."}
 ];
 const markers = [];
 const filterButtons = document.querySelectorAll("#filter-buttons button");
 let map;
+let usermarker = null;
 function initMap() {
     const hamilton = { lat: 43.2557, lng: -79.8711 };
     map = new google.maps.Map(document.getElementById("map"), {
@@ -36,4 +37,28 @@ filterButtons.forEach(button => {
             }
         });
     });
+});
+document.getElementById("locate-btn").addEventListener("click", () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const userloc = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            if (usermarker) {
+                usermarker.setMap(null);
+            }
+            usermarker = new google.maps.Marker ({
+                position: userloc,
+                map: map,
+                title: "Your Location",
+                icon: {url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"}
+            });
+            map.setCenter(userloc);
+        }, () => {
+            alert("Unable to acquire your location");
+        });
+    } else {
+        alert("Geolocation not supported by this browser");
+    }
 });
