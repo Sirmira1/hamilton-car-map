@@ -5,6 +5,7 @@ const markers = [];
 const filterButtons = document.querySelectorAll("#filter-buttons button");
 let map;
 let usermarker = null;
+const geocoder = new google.maps.Geocoder();
 function initMap() {
     const hamilton = { lat: 43.2557, lng: -79.8711 };
     map = new google.maps.Map(document.getElementById("map"), {
@@ -61,4 +62,34 @@ document.getElementById("locate-btn").addEventListener("click", () => {
     } else {
         alert("Geolocation not supported by this browser");
     }
+});
+document.getElementById("add-marker-btn").addEventListener("click", () => {
+    const name = document.getElementById("place-name").value;
+    const address = document.getElementById("place-address").value;
+    const category = document.getElementById("place-category").value;
+    if (!name || !address) {
+        alert ("You must enter a name and an address.");
+    }
+    geocoder.geocode({ address: address}, (results, status) => {
+        if (status === "OK") {
+            const location = results[0].geometry.location;
+            const marker = new google.maps.Marker ({
+                position: location,
+                map: map,
+                title: name,
+            });
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<h5>${name}</h5><p>${category}</p>`
+            });
+            marker.addListener("click", () => {
+                infoWindow.open(map, marker);
+            });
+            markers.push({marker, category});
+            map.setCenter(location);
+            document.getElementById("place-name").value = "";
+            document.getElementById("place-address").value = "";
+        } else {
+            alert ("Invalid address.");
+        }
+    });
 });
