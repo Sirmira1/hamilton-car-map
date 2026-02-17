@@ -5,13 +5,14 @@ const markers = [];
 const filterButtons = document.querySelectorAll("#filter-buttons button");
 let map;
 let usermarker = null;
-const geocoder = new google.maps.Geocoder();
+let geocoder;
 function initMap() {
     const hamilton = { lat: 43.2557, lng: -79.8711 };
     map = new google.maps.Map(document.getElementById("map"), {
         center: hamilton,
         zoom: 13,
     });
+    geocoder = new google.maps.Geocoder();
     carMarkers.forEach (data => {
         const marker = new google.maps.Marker({
             position: data.position,
@@ -19,7 +20,7 @@ function initMap() {
             title: data.name,
         });
         const info = new google.maps.InfoWindow ({
-            content: `<h5>${data.name}</h5><p>${data.description}</p>`,
+            content: `<h5>${data.name}</h5><p>${data.description}</p></p>${data.category}</p>`,
         });
         marker.addListener("click", () => {
             info.open(map, marker);
@@ -66,9 +67,11 @@ document.getElementById("locate-btn").addEventListener("click", () => {
 document.getElementById("add-marker-btn").addEventListener("click", () => {
     const name = document.getElementById("place-name").value;
     const address = document.getElementById("place-address").value;
+    const desc = document.getElementById("place-desc").value;
     const category = document.getElementById("place-category").value;
     if (!name || !address) {
-        alert ("You must enter a name and an address.");
+        alert ("You must enter a name, a description, and an address.");
+        return;
     }
     geocoder.geocode({ address: address}, (results, status) => {
         if (status === "OK") {
@@ -79,7 +82,7 @@ document.getElementById("add-marker-btn").addEventListener("click", () => {
                 title: name,
             });
             const infoWindow = new google.maps.InfoWindow({
-                content: `<h5>${name}</h5><p>${category}</p>`
+                content: `<h5>${name}</h5></p>${desc}</p><p>${category}</p>`
             });
             marker.addListener("click", () => {
                 infoWindow.open(map, marker);
