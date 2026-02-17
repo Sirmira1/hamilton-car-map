@@ -6,6 +6,10 @@ const filterButtons = document.querySelectorAll("#filter-buttons button");
 let map;
 let usermarker = null;
 let geocoder;
+let directionsService;
+let directionsRenderer;
+let selectedMarkerPosition = null;
+let userPosition = null;
 function initMap() {
     const hamilton = { lat: 43.2557, lng: -79.8711 };
     map = new google.maps.Map(document.getElementById("map"), {
