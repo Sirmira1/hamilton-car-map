@@ -17,6 +17,23 @@ function initMap() {
         zoom: 13,
     });
     geocoder = new google.maps.Geocoder();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: false
+    });
+    directionsService = new google.maps.DirectionsService();
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userPosition = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+            }, () => {
+                alert ("Locaation needed to calculate directions");
+            }
+        );
+    }
     carMarkers.forEach (data => {
         const marker = new google.maps.Marker({
             position: data.position,
@@ -27,6 +44,7 @@ function initMap() {
             content: `<h5>${data.name}</h5><p>${data.description}</p></p>${data.category}</p>`,
         });
         marker.addListener("click", () => {
+            selectedMarkerPosition = marker.position;
             info.open(map, marker);
         })
         markers.push({ marker, category: data.category });
@@ -89,6 +107,7 @@ document.getElementById("add-marker-btn").addEventListener("click", () => {
                 content: `<h5>${name}</h5></p>${desc}</p><p>${category}</p>`
             });
             marker.addListener("click", () => {
+                selectedMarkerPosition = marker.position;
                 infoWindow.open(map, marker);
             });
             markers.push({marker, category});
@@ -97,6 +116,24 @@ document.getElementById("add-marker-btn").addEventListener("click", () => {
             document.getElementById("place-address").value = "";
         } else {
             alert ("Invalid address.");
+        }
+    });
+});
+document.getElementById("routeBtn").addEventListener("click", () => {
+    if (!userPosition || !selectedMarkerPosition) {
+        alert("You must select a position and allow GPS first.");
+        return;
+    }
+    const req = {
+        origin: userPosition,
+        destination: selectedMarkerPosition,
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(req, (results, status) => {
+        if (status === "OK") {
+            directionsRenderer.setDirections(result);
+        } else {
+            alert("Could not calculate route.");
         }
     });
 });
