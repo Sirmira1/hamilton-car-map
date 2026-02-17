@@ -44,7 +44,7 @@ function initMap() {
             content: `<h5>${data.name}</h5><p>${data.description}</p></p>${data.category}</p>`,
         });
         marker.addListener("click", () => {
-            selectedMarkerPosition = marker.position;
+            selectedMarkerPosition = marker.getPosition();
             info.open(map, marker);
         })
         markers.push({ marker, category: data.category });
@@ -69,6 +69,7 @@ document.getElementById("locate-btn").addEventListener("click", () => {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
             };
+            userPosition = userloc;
             if (usermarker) {
                 usermarker.setMap(null);
             }
@@ -107,7 +108,7 @@ document.getElementById("add-marker-btn").addEventListener("click", () => {
                 content: `<h5>${name}</h5></p>${desc}</p><p>${category}</p>`
             });
             marker.addListener("click", () => {
-                selectedMarkerPosition = marker.position;
+                selectedMarkerPosition = marker.getPosition();
                 infoWindow.open(map, marker);
             });
             markers.push({marker, category});
@@ -129,7 +130,7 @@ document.getElementById("routeBtn").addEventListener("click", () => {
         destination: selectedMarkerPosition,
         travelMode: google.maps.TravelMode.DRIVING
     };
-    directionsService.route(req, (results, status) => {
+    directionsService.route(req, (result, status) => {
         if (status === "OK") {
             directionsRenderer.setDirections(result);
         } else {
